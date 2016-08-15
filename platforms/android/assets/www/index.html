@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2016 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="msapplication-tap-highlight" content="no" />
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+<!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+
+<!-- Good default declaration:
+    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+        * Enable inline JS: add 'unsafe-inline' to default-src
+        * Enable eval(): add 'unsafe-eval' to default-src
+    * Create your own at http://cspisawesome.com
+    -->
+<!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+<link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.5.min.css" />
+<title>To Do</title>
+</head>
+
+<body onLoad="onLoad();">
+<div data-role="page" id="home" data-theme="b">
+  <div data-role="header" data-id="header" data-position="fixed">
+    <h2>Header</h2>
+  </div>
+  <!-- /header -->
+  <div data-role="content"> <a href="#new" data-role="button" data-icon="star" data-theme="a" onClick="resetForm();" >New Task</a> 
+  <a href="#list" data-role="button" data-icon="star" data-theme="a" onClick="resetForm();">Task Lists</a> </div>
+  <!-- /content -->
+  
+  <div data-role="footer" data-id="footer" data-position="fixed">
+    <h2>footer</h2>
+  </div>
+  <!-- /footer --> 
+  
+</div>
+<!-- /home page --> 
+
+<!-- Start of new task to do page -->
+<div data-role="page" id="new">
+  <div data-role="header" data-add-back-btn="true" class="pageHeader" data-position="fixed">
+    <h1>Current Tasks</h1>
+    <a href="#home"> <img border="0" alt="Home" src="images/home.png" width="15" height="15"></a> 
+    <!--<input type='button' onclick='exitApp()'/>--> 
+  </div>
+  <!-- /header -->
+  
+  <div data-role="content">
+  <form id="todo-form">
+    <input type="hidden" id="taskID" />
+    <input type="text" placeholder="Task Title" id="taskTitle" />
+    <textarea placeholder="Description" id="taskDescription"></textarea>
+    <input type="date" placeholder="Due Date (dd/mm/yyyy)" id="taskDueDate" />
+    <table>
+      <tbody>
+          </tr>       
+        <tr>
+          <td><img style="width:80px;height:80px;" id="smallImage" src="images/imagePlaceholder.png" /></td>
+          <td><input type="button" class="btn btn-primary" value="Attach Image to Task" onclick="capturePhotoWithCamera();" /></td>
+        </tr>
+        <tr>
+          <td colspan="2"> <div id="gpsDIV" style="display:none" >
+          <p>Image GPS</p>
+          <label id="imageGPSLabel"></label>
+          </div></td>
+          
+        </tr>
+      </tbody>
+    </table>
+    
+      
+      <div data-role="fieldcontain">
+	
+    <fieldset data-role="controlgroup">
+		<input type="checkbox" name="checkbox-1" id="checkbox-1" class="custom" />
+		<label for="checkbox-1" id="checkLbl">Mark as Complete</label>
+	</fieldset>
+</div>
+      
+      
+    <input type="button" data-theme="b" name="submit" id="submit" value="Save Task" onClick="getTaskData();" >
+ 
+    
+    <div id="delBtnDiv" data-theme="b" ></div>
+ 
+    <a href="#home" data-role="button" data-theme="a">Cancel</a>
+    </div>
+  </form>
+  <!-- /content -->
+  
+  <div data-role="footer" data-position="fixed">
+    <h4>Page Footer</h4>
+  </div>
+  <!-- /footer --> 
+</div>
+<!-- /page --> 
+
+<!-- Start of list tasks page -->
+<div data-role="page" id="list">
+  <div data-role="header" data-add-back-btn="true" class="pageHeader" data-position="fixed">
+    <h1>Current Tasks</h1>
+    <a href="#home"> <img border="0" alt="Home" src="images/home.png" width="15" height="15"></a> </div>
+  <!-- /header -->
+  
+  <div data-role="content">
+    <fieldset data-role="controlGroup" data-type="horizontal" data-theme="a" >
+ <table width="100%" border="0" cellspacing="5" cellpadding="5">
+  <tbody>
+    <tr>
+      <td><input type ="radio" name="radio-choice-h-2" id="radio-choice-h-2a" value="off" onClick="showCompleted();" />
+      <label for="radio-choice-h-2a">Completed Tasks</label></td>
+      <td><input type="button" data-theme="b" name="submit" id="submit" value="Email List" onClick="emailList('complete');"  /></td>
+    </tr>
+    <tr>
+      <td><input type ="radio" name="radio-choice-h-2" id="radio-choice-h-2b" value="on" checked="checked" onClick="showIncomplete()" />
+      <label for="radio-choice-h-2b">Incomplete Tasks</label></td>
+      <td><input type="button" data-theme="b" name="submit" id="submit" value="Email List" onClick="emailList('incomplete');" /></td>
+    </tr>
+  </tbody>
+</table>
+</fieldset>
+    <div id="incompletedOutput" data-theme="b" ></div><!-- / incomplete output -->
+    <div style="display:none" id="completedOutput" data-theme="b"></div><!-- /completedOutput --> 
+  </div>
+  <!-- /content -->
+  
+  <div data-role="footer" data-position="fixed">
+    <h4>Page Footer</h4>
+  </div>
+  <!-- /footer --> 
+</div>
+<!-- /page --> 
+
+<!-- Start of email tasks page -->
+<div data-role="page" id="emailList">
+  <div data-role="header" data-add-back-btn="true" class="pageHeader" data-position="fixed">
+    <h1>Email Tasks</h1>
+    <a href="#home"> <img border="0" alt="Home" src="images/home.png" width="15" height="15"></a> </div>
+  <!-- /header -->
+  
+  <div data-role="content">
+  <form method="post" id="mailform" onSubmit="sendEmail(); return false" >
+  <table width="100%" border="0" >
+  <tbody>
+    <tr>
+      <td><input type="text" placeholder="To" id="emailTo"  /></td>
+      <td><input type="button" value="list" onClick="contactList();" /></td>
+    </tr>
+    <tr>
+      <td colspan="2"><input type="text" placeholder="Subject" id="emailSubject" value="My Tasks" /></td>
+    </tr>
+    <tr>
+      <td colspan="2"><textarea placeholder="Body" id="emailBody" ></textarea></td>
+    </tr>
+    <tr>
+      <td colspan="2"><input  class="btn btn-primary" value="Email Tasks" type="submit" /></td>
+    </tr>
+  </tbody>
+</table>
+    </form>
+  </div>
+  <!-- /content -->
+  
+  <div data-role="footer" data-position="fixed">
+    <h4></h4>
+  </div>
+  <!-- /footer --> 
+</div>
+<!-- /page --> 
+
+<!--<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>--> 
+<script type="text/javascript" src="js/taskFunctions.js"></script> 
+<!--<script type="text/javascript" src="js/emailComposer.js"></script> -->
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script> 
+<script type="text/javascript" src="js/jquery.mobile-1.4.5.js"></script> 
+<script type="text/javascript" src="cordova.js"></script> 
+<script type="text/javascript" src="js/index.js"></script> 
+<!--<script type="text/javascript">
+        app.initialize();
+    </script>-->
+
+</body>
+</html>
